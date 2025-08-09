@@ -1,18 +1,18 @@
-[project]
+[tool.poetry]
 name = "jps-vs-a-star"
 version = "0.1.0"
 description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "src" }]
+dependencies = { python = ">=3.9,<4.0" }
+dev-dependencies = { pytest = "^8.4.1", pytest-html = "^4.1.1" }
+
+[tool.poetry.group.dev.dependencies]
+pytest-html = "^4.1.1"
+
 [tool.pytest.ini_options]
 python_paths = ["src"]
-
-authors = [
-    {name = "Your Name",email = "you@example.com"}
-]
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-]
-
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
