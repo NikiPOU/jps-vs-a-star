@@ -41,8 +41,8 @@ E.g.
 . . .
 ```
 - no: enter custom grid line by line.
--- 0 for walkable spaces.
--- 1 for walls.
+- 0 for walkable spaces.
+- 1 for walls.
 E.g.
 ```text
 0 0 0 0   . . . .
@@ -73,6 +73,7 @@ For each algorithm, the program will display:
 - The number of steps in the path
 
 - The time taken to compute the path
+
 
 
 
