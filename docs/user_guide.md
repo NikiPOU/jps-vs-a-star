@@ -35,19 +35,21 @@ Use default grid? (yes/no):
 
 -yes: the program will use a deafault 3x3 grid.
 E.g.
+```text
 . . .
 █ █ .
 . . .
-
+```
 -no: enter custom grid line by line.
 -- 0 for walkable spaces.
 -- 1 for walls.
 E.g.
+```text
 0 0 0 0   . . . .
 1 1 0 1 = █ █ . █
 0 0 0 0   . . . .
 0 1 0 0   . █ . .
-
+```
 ### 2. Choose star and goal points
 
 Program: 
@@ -62,10 +64,13 @@ Enter goal point (row col):
 For each algorithm, the program will display:
 
 - The path visualized on the grid:
+```text
 • = path
 █ = wall
 . = walkable cell
-  
+```
+
 - The number of steps in the path
 
 - The time taken to compute the path
+
