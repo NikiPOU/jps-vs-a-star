@@ -33,14 +33,14 @@ When you start the program, a short explanation of how it works will be provided
 Program: 
 Use default grid? (yes/no):
 
--yes: the program will use a deafault 3x3 grid.
+- yes: the program will use a deafault 3x3 grid.
 E.g.
 ```text
 . . .
 █ █ .
 . . .
 ```
--no: enter custom grid line by line.
+- no: enter custom grid line by line.
 -- 0 for walkable spaces.
 -- 1 for walls.
 E.g.
@@ -73,4 +73,5 @@ For each algorithm, the program will display:
 - The number of steps in the path
 
 - The time taken to compute the path
+
 
