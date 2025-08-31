@@ -37,7 +37,7 @@ The application runs entirely in the terminal and provides clear instructions an
 
 ## Use of Large Language Models
 
-- This project used large langue models for help in formatting of .md files.
+- This project used large langue models for formatting guidance of .md files and documentation.
 
 ## Sources
 
