@@ -56,8 +56,8 @@ Program:
 Enter start point (row col):
 Enter goal point (row col):
 
--Input two integers separated by a space, e.g. 0 0 for the top-left corner.
--You cannot choose a wall (1) as a start or goal point.
+- Input two integers separated by a space, e.g. 0 0 for the top-left corner.
+- You cannot choose a wall (1) as a start or goal point.
 
 ### 3. See results
 
@@ -73,5 +73,6 @@ For each algorithm, the program will display:
 - The number of steps in the path
 
 - The time taken to compute the path
+
 
 
