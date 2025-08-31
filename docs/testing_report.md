@@ -15,20 +15,59 @@ Unit tests were written using pytest for both the A* and JPS algorithms. The tes
 - The test checks a 3x3 grid with a simple obstacle layout.
 - Passed successfully.
 
-## Test Inputs
+## Test Inputs and Results
 
-- 3x3 grid example:
+- Test Case 1 - 3x3 Grid:
  ```text
 0 0 0
 1 1 0
 0 0 0
  ```
+- Start: (0,0)
+- Goal: (2,2)
 
-## Test Results
+Results:
+- A* path: valid.
+- JPS path: valid.
+- Path costs equal.
+- Test outcome: Passed
+
+- Test Case 2 - 5x5 Grid:
+ ```text
+0 0 0 0 0
+1 1 0 1 0
+0 0 0 1 0
+1 1 0 1 0
+0 0 0 0 0
+ ```
+- Start: (0,0)
+- Goal: (4,4)
+
+- A* path: valid.
+- JPS path: valid.
+- Path costs equal.
+- Test outcome: Passed
+
+- Test Case 3 - 5x5 Grid with blockage:
+ ```text
+0 1 0 0 0
+1 1 0 1 0
+0 0 0 1 0
+1 1 0 1 0
+0 0 0 0 0
+ ```
+- Start: (0,0)
+- Goal: (4,4)
+  
+- A* failed to find a path: IndexError in test
+- JPS also failed.
+- Test outcome: Failed
+
+## Overall Test Results
 
 - A* and JPS successfully found valid paths.
 - Path cost was equal for both algorithms.
-- Test passed: 1/1
+- Test passed: 2/3 (1/3 failed)
 ---
 
 ## Testing Instructions
@@ -36,3 +75,4 @@ Unit tests were written using pytest for both the A* and JPS algorithms. The tes
  ```code
 poetry run pytest --html=report.html --self-contained-html
  ```
+
