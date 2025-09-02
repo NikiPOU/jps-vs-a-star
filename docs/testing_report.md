@@ -20,7 +20,7 @@ Unit tests were written using pytest for both the A* and JPS algorithms. The tes
 
 ## Test Inputs and Results
 
-- Test Case 1 - 3x3 Grid:
+Test Case 1 - 3x3 Grid:
  ```text
 0 0 0
 1 1 0
@@ -35,7 +35,7 @@ Results:
 - Path costs equal.
 - Test outcome: Passed
 
-- Test Case 2 - No possible path:
+Test Case 2 - No possible path:
  ```text
 0 1 0
 1 1 1
@@ -48,7 +48,7 @@ Results:
 - JPS path: None.
 - Test outcome: Passed.
 
-- Test Case 3 - Start == Goal:
+Test Case 3 - Start == Goal:
  ```text
 0 0
 0 0
@@ -58,7 +58,7 @@ Results:
 
 - Test outcome: Passed.
 
-- Test Case 4 - Large 10x10 Grid with obstacles:
+Test Case 4 - Large 10x10 Grid with obstacles:
  ```text
 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0
@@ -71,7 +71,7 @@ Results:
 - JPS path: valid.
 - Test outcome: Passed.
 
-- Test Case 5 - Performance 50x50:
+Test Case 5 - Performance 50x50:
 
 - Start: (0,0)
 - Goal: (49,49)
@@ -91,5 +91,6 @@ Results:
  ```code
 poetry run pytest --html=report.html --self-contained-html
  ```
+
 
 
