@@ -1,24 +1,21 @@
 from heapq import heappush, heappop
+import math
 
 def heuristic(a, b):
     """
-    Calculate the Manhattan distance between two points.
-
-    Parameters:
-    a (tuple): Coordinates of the first point (row, col).
-    b (tuple): Coordinates of the second point (row, col).
-
-    Returns:
-    int: Manhattan distance between points a and b.
+    Calculate the Octile distance between two points.
+    Works well for 8-directional grids (diagonals allowed).
     """
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    dx = abs(a[0] - b[0])
+    dy = abs(a[1] - b[1])
+    return max(dx, dy) + (math.sqrt(2) - 1) * min(dx, dy)
 
 def get_neighbors(grid, node):
     """
-    Get all neighbors (walkable) (up, down, left, right) of a given node in the grid.
+    Get all 8 neighbors (walkable) of a given node in the grid.
 
     Parameters:
-    grid (list of list of int): 2D grid representing the map (0 = walkable, 1 = wall).
+    grid (list of list of int): 2D grid (0 = walkable, 1 = wall).
     node (tuple): Current node coordinates (row, col).
 
     Returns:
@@ -26,54 +23,50 @@ def get_neighbors(grid, node):
     """
     x, y = node
     neighbors = []
-    #          up      down    left     right
-    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    moves = [
+        (-1, 0), (1, 0), (0, -1), (0, 1),        # straight
+        (-1, -1), (-1, 1), (1, -1), (1, 1)       # diagonals
+    ]
 
     for dx, dy in moves:
         nx, ny = x + dx, y + dy
-
         if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0:
             neighbors.append((nx, ny))
     return neighbors
 
 def find_path(start, goal, grid):
     """
-    Find the shortest path from start to goal using the A* algorithm.
-
-    Parameters:
-    start (tuple): Starting coordinates (row, col).
-    goal (tuple): Goal coordinates (row, col).
-    grid (list of list of int): 2D grid representing the map (0 = walkable, 1 = wall).
+    Find the shortest path from start to goal using the A* algorithm with diagonals.
 
     Returns:
     list of tuple: Ordered list of coordinates representing the shortest path from start to goal.
-                   Returns an empty list if no path exists.
+                   Returns None if no path exists.
     """
     open_set = []
     heappush(open_set, (heuristic(start, goal), start))
-    came_from = {}  # each node mapped to its parent
-    cost_so_far = {start: 0}  # cost from start to each node
+    came_from = {}
+    cost_so_far = {start: 0}
 
     while open_set:
         _, current = heappop(open_set)
 
-        # goal reached so reconstruct path
         if current == goal:
             path = []
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return path[::-1]  # return path from start to goal
+            return path[::-1]
 
-        # explore neighbors
         for neighbor in get_neighbors(grid, current):
-            new_cost = cost_so_far[current] + 1
+            # cost = 1 for straight, sqrt(2) for diagonal
+            step_cost = math.sqrt(2) if (neighbor[0] != current[0] and neighbor[1] != current[1]) else 1
+            new_cost = cost_so_far[current] + step_cost
+
             if new_cost < cost_so_far.get(neighbor, float("inf")):
                 came_from[neighbor] = current
                 cost_so_far[neighbor] = new_cost
                 priority = new_cost + heuristic(neighbor, goal)
                 heappush(open_set, (priority, neighbor))
 
-    # No path found
-    return []
+    return None
