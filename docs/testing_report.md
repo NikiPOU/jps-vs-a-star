@@ -9,7 +9,7 @@ Unit tests were written to verify the correctness of both the A* and JPS algorit
 - Validation that the path only moves through walkable cells.
 - Consistency of path cost between A* and JPS for the same grid.
 - Octile distance heuristic verification.
-- Reverse-direction pathfinding to ensure bidirectional correctness.
+- Reverse direction pathfinding.
 
 ## Unit Test Coverage
 
