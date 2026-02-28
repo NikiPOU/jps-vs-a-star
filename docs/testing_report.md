@@ -77,9 +77,8 @@ Benchmarking was performed on a single map Berlin_1_256.map using 1000 randomly 
 - Invalid paths: 0.
 - Cost mismatches: 0.
 
-Algorithm     Avg Runtime (s)     Avg Path Cost
-A*            0.105               160.190
-JPS           0.024               160.190
+- Algorithm: A*, Avg Runtime (s): 0.105, Avg Path Cost: 160.190
+- Algorithm: JPS, Avg Runtime (s): 0.024, Avg Path Cost: 160.190
 
 - All paths returned by both algorithms are valid.
 - A* and JPS produce identical path costs for all successful paths.
@@ -93,6 +92,7 @@ JPS           0.024               160.190
 - Performance advantage of JPS is clear.
 - Octile heuristic tested.
 - Both forward and reverse pathfinding confirmed.
+
 
 
 
