@@ -1,72 +1,96 @@
-from heapq import heappush, heappop
+import heapq
 import math
+
+
+def passable(grid, y, x):
+    """
+    Check if position is inside the grid and walkable.
+
+    Parameters:
+    grid (list of list of int): 2D grid (0 = walkable, 1 = wall)
+    y (int): Row index
+    x (int): Column index
+
+    Returns:
+    bool: True if the tile is valid and not blocked.
+    """
+    return 0 <= y < len(grid) and 0 <= x < len(grid[0]) and grid[y][x] == 0
+
+
+def valid_move(grid,y,x,ny,nx):
+    """
+    Check if moving to a new position allowed.
+
+    Parameters:
+    grid (list of list of int): 2D grid
+    y, x (int): Current position
+    ny, nx (int): New position
+
+    Returns:
+    bool: True if the move is valid.
+    """
+    return passable(grid,ny,nx)
+
 
 def heuristic(a, b):
     """
     Calculate the Octile distance between two points.
-    Works well for 8-directional grids (diagonals allowed).
     """
-    dx = abs(a[0] - b[0])
-    dy = abs(a[1] - b[1])
-    return max(dx, dy) + (math.sqrt(2) - 1) * min(dx, dy)
+    dy = abs(a[0]-b[0])
+    dx = abs(a[1]-b[1])
+    return max(dx, dy) + (math.sqrt(2)-1) * min(dx, dy)
 
-def get_neighbors(grid, node):
-    """
-    Get all 8 neighbors (walkable) of a given node in the grid.
-
-    Parameters:
-    grid (list of list of int): 2D grid (0 = walkable, 1 = wall).
-    node (tuple): Current node coordinates (row, col).
-
-    Returns:
-    list of tuple: List of coordinates for all valid neighboring nodes.
-    """
-    x, y = node
-    neighbors = []
-    moves = [
-        (-1, 0), (1, 0), (0, -1), (0, 1),        # straight
-        (-1, -1), (-1, 1), (1, -1), (1, 1)       # diagonals
-    ]
-
-    for dx, dy in moves:
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0:
-            neighbors.append((nx, ny))
-    return neighbors
 
 def find_path(start, goal, grid):
     """
-    Find the shortest path from start to goal using the A* algorithm with diagonals.
+    Find shortest path from start to goal using the A*.
+
+    Movement allows 8 directions.
+    Straight moves cost 1
+    Diagonal moves cost sqrt(2)
 
     Returns:
-    list of tuple: Ordered list of coordinates representing the shortest path from start to goal.
-                   Returns None if no path exists.
+    list of tuple: Ordered list of coordinates from start to goal.
+    Returns None if no path exists.
     """
-    open_set = []
-    heappush(open_set, (heuristic(start, goal), start))
-    came_from = {}
-    cost_so_far = {start: 0}
+    if start == goal:
+        return [start]
 
-    while open_set:
-        _, current = heappop(open_set)
+    open_heap = []
+    heapq.heappush(open_heap, (0,start))
+
+    came_from = {}
+    g_score = {start: 0}
+
+    while open_heap:
+        _, current = heapq.heappop(open_heap)
 
         if current == goal:
-            path = []
+            path = [current]
             while current in came_from:
-                path.append(current)
                 current = came_from[current]
-            path.append(start)
+                path.append(current)
             return path[::-1]
 
-        for neighbor in get_neighbors(grid, current):
-            # cost = 1 for straight, sqrt(2) for diagonal
-            step_cost = math.sqrt(2) if (neighbor[0] != current[0] and neighbor[1] != current[1]) else 1
-            new_cost = cost_so_far[current] + step_cost
+        y,x = current
 
-            if new_cost < cost_so_far.get(neighbor, float("inf")):
-                came_from[neighbor] = current
-                cost_so_far[neighbor] = new_cost
-                priority = new_cost + heuristic(neighbor, goal)
-                heappush(open_set, (priority, neighbor))
+        for dy, dx in [
+            (-1,0), (1,0), (0,-1), (0,1),
+            (-1,-1), (-1,1), (1,-1), (1,1)
+        ]:
+            ny = y+dy
+            nx = x+dx
+
+            if not valid_move(grid,y,x,ny,nx):
+                continue
+
+            step_cost = math.sqrt(2) if dy != 0 and dx != 0 else 1
+            t = g_score[current] + step_cost
+
+            if t < g_score.get((ny, nx), float("inf")):
+                came_from[(ny,nx)] = current
+                g_score[(ny,nx)] = t
+                f = t + heuristic((ny,nx), goal)
+                heapq.heappush(open_heap, (f, (ny,nx)))
 
     return None

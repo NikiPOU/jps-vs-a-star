@@ -1,140 +1,227 @@
-from heapq import heappush, heappop
+import heapq
 import math
 
-def passable(grid, x, y):
+
+def passable(grid, y, x):
     """
-    Check if a cell is within bounds and walkable.
+    Check if position is inside the grid and walkable.
 
     Parameters:
-    grid (list of list of int): 2D grid map (0=walkable, 1=wall)
-    x (int): Row index
-    y (int): Column index
+    grid (list of list of int): 2D grid (0 = walkable, 1 = wall)
+    y (int): Row index
+    x (int): Column index
 
     Returns:
-    bool: True if the cell is walkable and inside the grid
+    bool: True if the tile is valid and not blocked.
     """
-    return 0 <= x < len(grid) and 0 <= y < len(grid[0]) and grid[x][y] == 0
+    return 0 <= y < len(grid) and 0 <= x < len(grid[0]) and grid[y][x] == 0
 
-def jump(grid, x, y, dx, dy, goal):
+
+def valid_move(grid,y,x,ny,nx):
     """
-    Recursive jump function for JPS.
-    Skips over nodes in straight or diagonal direction until
-    a forced neighbor or the goal is reached.
-
-    Parameters:
-    grid (list of list of int): 2D grid
-    x, y (int): Current cell coordinates
-    dx, dy (int): Direction of movement
-    goal (tuple): Goal coordinates
-
-    Returns:
-    tuple or None: Next jump point coordinates or None if blocked
+    Determine whether movement to new position is allowed.
     """
-    nx, ny = x + dx, y + dy
-    if not passable(grid, nx, ny):
-        return None
-    if (nx, ny) == goal:
-        return (nx, ny)
-    
-    # Diagonal forced neighbors
-    if dx != 0 and dy != 0:
-        if (passable(grid, nx - dx, ny + dy) and not passable(grid, nx - dx, ny)) or \
-           (passable(grid, nx + dx, ny - dy) and not passable(grid, nx, ny - dy)):
-            return (nx, ny)
-        if jump(grid, nx, ny, dx, 0, goal) or jump(grid, nx, ny, 0, dy, goal):
-            return (nx, ny)
-    elif dx != 0:
-        if (passable(grid, nx, ny + 1) and not passable(grid, x, y + 1)) or \
-           (passable(grid, nx, ny - 1) and not passable(grid, x, y - 1)):
-            return (nx, ny)
-    elif dy != 0:
-        if (passable(grid, nx + 1, ny) and not passable(grid, x + 1, y)) or \
-           (passable(grid, nx - 1, ny) and not passable(grid, x - 1, y)):
-            return (nx, ny)
+    return passable(grid,ny,nx)
 
-    return jump(grid, nx, ny, dx, dy, goal)
-
-def successors(grid, node, goal):
-    """
-    Get all jump point successors from the current node.
-
-    Parameters:
-    grid (list of list of int): 2D grid
-    node (tuple): Current node coordinates
-    goal (tuple): Goal coordinates
-
-    Returns:
-    list of tuples: Jump points reachable from the node
-    """
-    x, y = node
-    dirs = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
-    return [jp for dx, dy in dirs if (jp := jump(grid, x, y, dx, dy, goal))]
 
 def heuristic(a, b):
     """
-    Octile distance heuristic for 8-directional movement.
+    Calculate the Octile distance between two points.
+    """
+    dy = abs(a[0]-b[0])
+    dx = abs(a[1]-b[1])
+    return max(dx, dy) + (math.sqrt(2)-1) * min(dx, dy)
 
-    Parameters:
-    a, b (tuple): Coordinates (row, col)
+
+def jump(grid,y,x,dy,dx,goal):
+    """
+    Jump in a direction until a jump point, forced neighbor,
+    or the goal is reached.
 
     Returns:
-    float: Estimated cost between a and b
+    tuple or None: The jump point coordinates if found.
     """
-    dx, dy = abs(a[0]-b[0]), abs(a[1]-b[1])
-    return max(dx, dy) + (math.sqrt(2)-1)*min(dx, dy)
+    ny,nx = y+dy,x+dx
+
+    if not valid_move(grid,y,x,ny,nx):
+        return None
+
+    if (ny, nx) == goal:
+        return (ny,nx)
+
+    if dy != 0 and dx != 0:
+        if (not passable(grid,ny - dy,nx) and passable(grid, ny-dy, nx+dx)) or \
+           (not passable(grid, ny, nx-dx) and passable(grid, ny+dy, nx-dx)):
+            return (ny, nx)
+
+        if jump(grid, ny, nx, dy, 0, goal) is not None:
+            return (ny, nx)
+        if jump(grid, ny, nx, 0, dx, goal) is not None:
+            return (ny, nx)
+
+    elif dx != 0:
+        if (not passable(grid, ny-1, nx) and passable(grid, ny-1, nx+dx)) or \
+           (not passable(grid, ny+1, nx) and passable(grid, ny+1, nx+dx)):
+            return (ny, nx)
+
+    elif dy != 0:
+        if (not passable(grid, ny, nx+1) and passable(grid, ny+dy, nx+1)) or \
+           (not passable(grid, ny, nx-1) and passable(grid, ny+dy, nx-1)):
+            return (ny, nx)
+
+    return jump(grid,ny,nx,dy,dx,goal)
+
+
+def prune_neighbors(grid, current, parent):
+    """
+    Reduce neighbor directions based on movement direction.
+    (JPS pruning step)
+
+    Returns:
+    list of tuple: Directions to explore next.
+    """
+    y, x = current
+
+    if parent is None:
+        return [
+            (-1,0), (1,0), (0,-1), (0,1),
+            (-1,-1), (-1,1), (1,-1), (1,1)
+        ]
+
+    py, px = parent
+    dy = y - py
+    dx = x - px
+
+    dy = 0 if dy == 0 else dy // abs(dy)
+    dx = 0 if dx == 0 else dx // abs(dx)
+
+    directions = []
+
+    if dy != 0 and dx != 0:
+        if valid_move(grid, y, x, y+dy, x+dx):
+            directions.append((dy, dx))
+        if valid_move(grid, y, x, y+dy, x):
+            directions.append((dy, 0))
+        if valid_move(grid, y, x, y, x+dx):
+            directions.append((0, dx))
+
+        if not passable(grid, y-dy, x) and passable(grid, y-dy, x+dx):
+            directions.append((-dy, dx))
+        if not passable(grid, y, x-dx) and passable(grid, y+dy, x-dx):
+            directions.append((dy, -dx))
+
+    elif dx != 0:
+        if valid_move(grid, y, x, y, x+dx):
+            directions.append((0, dx))
+
+        if not passable(grid, y+1, x) and passable(grid, y+1, x+dx):
+            directions.append((1, dx))
+        if not passable(grid, y-1, x) and passable(grid, y-1, x+dx):
+            directions.append((-1, dx))
+
+    elif dy != 0:
+        if valid_move(grid, y, x, y+dy, x):
+            directions.append((dy, 0))
+
+        if not passable(grid, y, x+1) and passable(grid, y+dy, x+1):
+            directions.append((dy, 1))
+        if not passable(grid, y, x-1) and passable(grid, y+dy, x-1):
+            directions.append((dy, -1))
+
+    return directions
+
 
 def reconstruct(came_from, start, goal):
     """
-    Reconstruct the full path from start to goal using jump points.
-    Includes intermediate steps along straight or diagonal lines.
-
-    Parameters:
-    came_from (dict): Mapping of node -> parent node
-    start, goal (tuple): Start and goal coordinates
-
-    Returns:
-    list of tuples: Full path from start to goal
+    Reconstruct the path from goal back to start.
     """
     path = [goal]
-    current = goal
-    while current != start:
-        parent = came_from[current]
-        dx, dy = parent[0]-current[0], parent[1]-current[1]
-        steps = max(abs(dx), abs(dy))
-        sx, sy = dx//steps, dy//steps
-        for i in range(1, steps):
-            path.append((current[0]+sx*i, current[1]+sy*i))
-        path.append(parent)
-        current = parent
+    cur = goal
+    while cur != start:
+        cur = came_from[cur]
+        path.append(cur)
     return path[::-1]
+
+
+def expand_path(path, grid):
+    """
+    Expand jump points into the full step-by-step path by filling in intermediate tiles.
+    """
+    if not path:
+        return None
+
+    expanded = [path[0]]
+
+    for i in range(1, len(path)):
+        y1, x1 = path[i - 1]
+        y2, x2 = path[i]
+
+        dy = y2 - y1
+        dx = x2 - x1
+
+        sy = 0 if dy == 0 else dy // abs(dy)
+        sx = 0 if dx == 0 else dx // abs(dx)
+
+        y, x = y1, x1
+
+        while (y != y2 or x != x2):
+            if y != y2:
+                y += sy
+            if x != x2:
+                x += sx
+
+            if not passable(grid, y, x):
+                return None
+            expanded.append((y, x))
+
+    return expanded
+
 
 def find_path(start, goal, grid):
     """
-    Find a path from start to goal using Jump Point Search (JPS).
-
-    Parameters:
-    start, goal (tuple): Start and goal coordinates
-    grid (list of list of int): 2D grid map
+    Find the shortest path using JPS algorithm.
 
     Returns:
-    list of tuples or None: Path from start to goal including intermediate steps,
-                            or None if no path exists
+    list of tuple: Full expanded path from start to goal,
+    or None if no path exists.
     """
-    open_set = [(heuristic(start, goal), start)]
+    if start == goal:
+        return [start]
+
+    open_set = []
+    heapq.heappush(open_set, (heuristic(start, goal), start))
+
     came_from = {}
-    cost_so_far = {start: 0}
+    g_score = {start: 0}
+    parent = {start: None}
+    closed = set()
 
     while open_set:
-        _, current = heappop(open_set)
-        if current == goal:
-            return reconstruct(came_from, start, goal)
+        _, current = heapq.heappop(open_set)
+        if current in closed:
+            continue
+        closed.add(current)
 
-        for n in successors(grid, current, goal):
-            step_cost = math.sqrt(2) if n[0]-current[0] != 0 and n[1]-current[1] != 0 else 1
-            new_cost = cost_so_far[current]+step_cost
-            if new_cost < cost_so_far.get(n, float("inf")):
-                came_from[n] = current
-                cost_so_far[n] = new_cost
-                heappush(open_set, (new_cost+heuristic(n, goal), n))
+        if current == goal:
+            raw = reconstruct(came_from, start, goal)
+            return expand_path(raw, grid)
+
+        for dy, dx in prune_neighbors(grid, current, parent[current]):
+            jp = jump(grid, current[0], current[1], dy, dx, goal)
+            if jp is None or jp in closed:
+                continue
+
+            ddy = abs(jp[0] - current[0])
+            ddx = abs(jp[1] - current[1])
+            diag = min(ddy, ddx)
+            straight = max(ddy, ddx) - diag
+            cost = diag * math.sqrt(2) + straight
+
+            t = g_score[current] + cost
+            if t < g_score.get(jp, float("inf")):
+                came_from[jp] = current
+                parent[jp] = current
+                g_score[jp] = t
+                heapq.heappush(open_set, (t + heuristic(jp, goal), jp))
 
     return None
