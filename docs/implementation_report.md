@@ -30,10 +30,8 @@ If invalid input is provided, a descriptive error message is shown without crash
 The application runs entirely in the terminal and provides clear instructions and grid visualization using ASCII characters (`.`, `█`, and `•` for the path).
 
 ## Suggestions for Improvement
- 
-- Consider adding diagonal movement to A*.  
+   
 - Implement visualization & better UI in general.
-- Optimize JPS further.
 
 ## Use of Large Language Models
 
