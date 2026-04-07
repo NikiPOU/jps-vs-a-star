@@ -82,7 +82,9 @@ Manual Verification of JPS Behavior
 ```
 - Start: (0,0)
 - Goal: (4,4)
-- Observed Jump-Point Path: [(0, 0), (1, 0), (3, 2), (4, 3), (4, 4)]
+  
+Results:
+- Jump points: [(0, 0), (1, 0), (3, 2), (4, 3), (4, 4)]
 - The path was manually verified to confirm correct JPS implementation.
 
 ## Unit Test Summary:
