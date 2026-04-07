@@ -10,12 +10,15 @@ Unit tests were written to verify the correctness of both the A* and JPS algorit
 - Consistency of path cost between A* and JPS for the same grid.
 - Octile distance heuristic verification.
 - Reverse direction pathfinding.
+- Verification of JPS jump-point behavior.
 
 ## Unit Test Coverage
 
 - Octile Distance Test: Ensures octile distance heuristic calculation is correct.
 - 4x4 Simple Grid: Small grid with a few obstacles. Tests both forward and reverse.
 - 5x5 Diagonal Block: Small grid with a more complex obstacle layout. Tests both forward and reverse paths.
+- JPS Jump Point Test: Confirms that the JPS algorithm reduces the number of nodes by identifying jump points.
+- Path Validity Tests: Ensure no movement through obstacles and correct path structure.
 
 ## Unit Test Inputs and Results
 
@@ -55,12 +58,24 @@ Results:
 Octile Distance Test:
 - Input: (0,0) -> (3,4)
 - Calculated distance: 6.242641
-- Test outcome: Passed
+- Test outcome: Passed.
+
+JPS Jump Point Test
+- Input: Straight-line grid (1x10)
+- Start: (0,0)
+- Goal: (0,9)
+
+Results:
+- Jump points: [(0, 0), (0, 9)]
+- Path length significantly reduced compared to A*.
+- Confirms the algorithm successfully skips intermediate nodes.
+- Test outcome: Passed.
 
 ## Unit Test Summary:
 
-- 3 executed unit tests (2 grids + octile distance)
-- 3/3 passed
+- Total unit tests executed: 5
+- All tests passed: 5/5
+- JPS jump-point behavior succesfully cerified.
 ---
 
 ## Benchmarking
