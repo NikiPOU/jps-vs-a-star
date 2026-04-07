@@ -71,11 +71,25 @@ Results:
 - Confirms the algorithm successfully skips intermediate nodes.
 - Test outcome: Passed.
 
+Manual Verification of JPS Behavior
+- A manual inspection of the generated jump-point path was performed on a grid with obstacles.
+```text
+0 0 0 0 0
+0 1 1 1 0
+0 0 0 1 0
+0 1 0 0 0
+0 0 0 0 0
+```
+- Start: (0,0)
+- Goal: (4,4)
+- Observed Jump-Point Path: [(0, 0), (1, 0), (3, 2), (4, 3), (4, 4)]
+- The path was manually verified to confirm correct JPS implementation.
+
 ## Unit Test Summary:
 
-- Total unit tests executed: 5
-- All tests passed: 5/5
-- JPS jump-point behavior succesfully cerified.
+- Total unit tests executed: 6
+- All tests passed: 6/6
+- JPS jump-point behavior succesfully verified.
 ---
 
 ## Benchmarking
