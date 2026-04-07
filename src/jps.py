@@ -223,5 +223,52 @@ def find_path(start, goal, grid):
                 parent[jp] = current
                 g_score[jp] = t
                 heapq.heappush(open_set, (t + heuristic(jp, goal), jp))
+    return None
+
+
+def find_path_jump_points(start, goal, grid):
+    """
+    Same as find_path, but returns ONLY jump points (for unit tests).
+    """
+    if start==goal:
+        return [start]
+
+    open_set = []
+    heapq.heappush(open_set, (heuristic(start, goal), start))
+
+    came_from = {}
+    g_score = {start: 0}
+    parent = {start: None}
+    closed = set()
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+
+        if current in closed:
+            continue
+        closed.add(current)
+
+        if current == goal:
+            return reconstruct(came_from, start, goal)
+
+        for dy, dx in prune_neighbors(grid, current, parent[current]):
+            jp = jump(grid, current[0], current[1], dy, dx, goal)
+
+            if jp is None or jp in closed:
+                continue
+
+            ddy = abs(jp[0]-current[0])
+            ddx = abs(jp[1]-current[1])
+            diag = min(ddy, ddx)
+            straight = max(ddy, ddx) - diag
+            cost = diag * math.sqrt(2) + straight
+
+            t = g_score[current] + cost
+
+            if t < g_score.get(jp, float("inf")):
+                came_from[jp] = current
+                parent[jp] = current
+                g_score[jp] = t
+                heapq.heappush(open_set, (t + heuristic(jp, goal), jp))
 
     return None

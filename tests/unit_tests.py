@@ -6,6 +6,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from a_star import find_path as a_star_path
 from jps import find_path as jps_path
+from jps import find_path_jump_points as jps_jumps
+
 
 #octile distance
 def octile_distance(a, b):
@@ -125,6 +127,91 @@ def path_cost(path):
 def print_jump_points(path):
     print("Jump Points:", path)
 
+
+#JPS UNIT TESTS
+
+def test_forced_neighbor():
+    grid = [
+        [0, 0, 0],
+        [1, 0, 1],
+        [0, 0, 0],
+    ]
+    start = (0, 1)
+    goal = (2, 1)
+
+    path = jps_path(start, goal, grid)
+
+    assert path is not None
+    assert path[0] == start and path[-1] == goal
+    assert is_valid_path(path, grid)
+
+def print_path(path):
+    print("Path:", path)
+    print("Path length:", len(path))
+
+def test_jps_optimization():
+    grid = [[0] * 10]
+    start = (0, 0)
+    goal = (0, 9)
+
+    path = jps_jumps(start, goal, grid)
+
+    print("Jump points:", path)
+
+    assert path is not None
+    assert len(path) < 10, "JPS should reduce number of nodes"
+
+
+def test_diagonal_jump():
+    grid = [[0]*5 for _ in range(5)]
+    start = (0, 0)
+    goal = (4, 4)
+
+    path = jps_path(start, goal, grid)
+
+    assert path is not None
+    assert path[0] == start and path[-1] == goal
+
+def test_obstacle_jump_points():
+    grid = [
+        [0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ]
+
+    start = (0, 0)
+    goal = (4, 4)
+
+    path = jps_jumps(start, goal, grid)
+
+    print("Jump points:", path)
+
+    assert path is not None
+    assert path[0] == start and path[-1] == goal
+
+
+
+def test_jump_blocked_by_obstacle():
+    grid = [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ]
+    start = (0, 0)
+    goal = (0, 3)
+
+    path = jps_path(start, goal, grid)
+
+    assert path is not None
+    assert is_valid_path(path, grid)
+
+
 if __name__ == "__main__":
     test_octile_distance()
     small_grid_tests()
+    test_forced_neighbor()
+    test_jps_optimization()
+    test_diagonal_jump()
+    test_jump_blocked_by_obstacle()
